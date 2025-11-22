@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="96ebf72c-78f9-420a-b788-194367898fd8"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmoBot - Your Emotion Guardian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            max-width: 500px;
+        }
+
+        /* Pet container */
+        .pet-container {
+            position: relative;
+            margin: 0 auto 40px;
+            width: 300px;
+            height: 300px;
+            cursor: pointer;
+        }
+
+        .pet-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .pet-image:hover {
+            transform: scale(1.05);
+        }
+
+        .pet-video {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px);
+            }
+            50% { 
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Tap hint */
+        .tap-hint {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Title */
+        h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        /* CTA button */
+        .cta-btn {
+            display: inline-block;
+            padding: 18px 50px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            margin-top: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* Stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars background -->
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <!-- Pet -->
+        <div class="pet-container" onclick="playVideo()">
+            <img 
+                id="petImage" 
+                class="pet-image" 
+                src="https://i.ibb.co/SwT98Thg/fadde802ca17e4a8624a204663c97baa-removebg-preview.png"
+                alt="Little Star"
+            >
+            <video 
+                id="petVideo" 
+                class="pet-video" 
+                playsinline
+                muted
+            >
+                <!-- Your video link will be added here -->
+            </video>
+            <div class="tap-hint">Tap Little Star ✨</div>
+        </div>
+
+        <!-- Title -->
+        <h1>I'm Your Emotion Guardian ⭐</h1>
+        <p class="subtitle">
+            Through voice recording, let me help you transform emotions<br>
+            into a visualized star map<br>
+            <strong>🤖 AI-powered emotion analysis</strong>
+        </p>
+
+        <!-- CTA button -->
+        <a href="voice.html" class="cta-btn" data-umami-event="Click-Start-Recording">Start Recording Emotions 🎤</a>
+
+        <!-- Bottom navigation -->
+        <div class="bottom-nav">
+            <a href="starmap.html" class="nav-link">
+                <span>🌌</span>
+                <span>Emotion Star Map</span>
+            </a>
+            <a href="analytics.html" class="nav-link">
+                <span>📊</span>
+                <span>Deep Analysis</span>
+            </a>
+            <a href="#about" class="nav-link" onclick="showAbout(); return false;">
+                <span>ℹ️</span>
+                <span>About EmoBot</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Create stars background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Play video
+        function playVideo() {
+            const img = document.getElementById('petImage');
+            const video = document.getElementById('petVideo');
+            
+            // Check if video source exists
+            if (video.src) {
+                img.style.display = 'none';
+                video.style.display = 'block';
+                video.play();
+                
+                video.onended = () => {
+                    video.style.display = 'none';
+                    img.style.display = 'block';
+                };
+            }
+        }
+
+        // Show about info
+        function showAbout() {
+            alert('🌟 EmoBot - Your AI Emotion Guardian\n\n' +
+                  '✨ Features:\n' +
+                  '• Voice emotion recording (using browser native API, completely free)\n' +
+                  '• AI-powered emotion type and intensity analysis\n' +
+                  '• Emotion star map visualization\n' +
+                  '• In-depth data analysis and trend insights\n' +
+                  '• Personalized recommendations\n\n' +
+                  '💡 Usage Tips:\n' +
+                  '• Recommended browsers: Chrome, Edge, or Safari\n' +
+                  '• Record emotions at least once daily\n' +
+                  '• Check analysis reports regularly to understand emotion patterns\n\n' +
+                  '🔒 Privacy Protection:\n' +
+                  '• All data stored locally in browser\n' +
+                  '• Voice recognition completed on device\n' +
+                  '• AI analysis via secure API');
+        }
+
+        // Initialize
+        createStars();
+    </script>
+
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('Service Worker registered'))
+    .catch(err => console.log('Service Worker registration failed:', err));
+}
+</script>
+
+</body>
+</html>

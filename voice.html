@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Emotions - EmoBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .instruction {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .record-btn {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            border: none;
+            color: white;
+            font-size: 48px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(233, 69, 96, 0.5);
+            transition: all 0.3s;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .record-btn.recording {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            animation: pulse 1s infinite;
+        }
+
+        .record-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 10px 40px rgba(233, 69, 96, 0.5);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 15px 60px rgba(233, 69, 96, 0.8);
+            }
+        }
+
+        .record-status {
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+            min-height: 20px;
+        }
+
+        .transcript-box {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            min-height: 120px;
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: left;
+            display: none;
+        }
+
+        .transcript-box.show {
+            display: block;
+        }
+
+        .transcript-label {
+            font-size: 14px;
+            opacity: 0.6;
+            margin-bottom: 10px;
+        }
+
+        #transcript {
+            font-size: 18px;
+        }
+
+        .submit-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            display: none;
+        }
+
+        .submit-btn.show {
+            display: inline-block;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* AI analysis loading animation */
+        .ai-analyzing {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .ai-analyzing.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .browser-error {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 107, 107, 0.2);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .ai-preview {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            text-align: left;
+            display: none;
+        }
+
+        .ai-preview.show {
+            display: block;
+        }
+
+        .emotion-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .intensity-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .intensity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← Back</a>
+
+    <div class="container">
+        <h2>Tell Me How You Feel 💭</h2>
+        <p class="instruction">
+            Click the button below to start recording<br>
+            Express your emotions and feelings right now<br>
+            <strong>AI will analyze your emotion type and intensity</strong>
+        </p>
+
+        <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+            🎤
+        </button>
+        <div class="record-status" id="recordStatus">Click to start recording</div>
+
+        <div class="transcript-box" id="transcriptBox">
+            <div class="transcript-label">What you said:</div>
+            <div id="transcript"></div>
+        </div>
+
+        <!-- AI analysis loading -->
+        <div class="ai-analyzing" id="aiAnalyzing">
+            <div class="loading-spinner"></div>
+            AI is analyzing your emotions...
+        </div>
+
+        <!-- AI analysis preview -->
+        <div class="ai-preview" id="aiPreview">
+            <div style="font-size: 14px; opacity: 0.8; margin-bottom: 10px;">🤖 AI Analysis Result</div>
+            <div id="emotionType"></div>
+            <div style="margin: 15px 0;">
+                <div style="font-size: 12px; opacity: 0.7; margin-bottom: 5px;">Emotion Intensity</div>
+                <div class="intensity-bar">
+                    <div class="intensity-fill" id="intensityFill" style="width: 0%"></div>
+                </div>
+                <div style="font-size: 12px; opacity: 0.7;" id="intensityText"></div>
+            </div>
+            <div style="font-size: 14px; line-height: 1.6; margin-top: 15px;" id="aiAnalysis"></div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitEmotion()">
+            Save to Star Map ✨
+        </button>
+
+        <div class="browser-error" id="browserError">
+            Sorry, your browser doesn't support voice recognition.<br>
+            Please use Chrome, Edge, or Safari.
+        </div>
+    </div>
+
+    <script>
+        let recognition;
+        let isRecording = false;
+        let transcript = '';
+        let aiAnalysisResult = null;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            document.getElementById('browserError').style.display = 'block';
+            document.getElementById('recordBtn').disabled = true;
+        }
+
+        function toggleRecord() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        function startRecording() {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';  // English language
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordBtn').textContent = '⏸️';
+                document.getElementById('recordStatus').textContent = 'Recording...';
+                document.getElementById('transcriptBox').classList.add('show');
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcriptPiece = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcriptPiece;
+                    } else {
+                        interimTranscript += transcriptPiece;
+                    }
+                }
+
+                transcript = finalTranscript || interimTranscript;
+                document.getElementById('transcript').textContent = transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+                document.getElementById('recordStatus').textContent = 'Recording error, please try again';
+            };
+
+            recognition.start();
+        }
+
+        function stopRecording() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isRecording = false;
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordBtn').textContent = '🎤';
+            document.getElementById('recordStatus').textContent = 'Recording stopped';
+            
+            if (transcript && transcript.length > 5) {
+                // Auto-trigger AI analysis
+                analyzeEmotionWithAI(transcript);
+            } else if (transcript) {
+                document.getElementById('submitBtn').classList.add('show');
+            }
+        }
+
+        async function analyzeEmotionWithAI(text) {
+            // Show loading state
+            document.getElementById('aiAnalyzing').classList.add('show');
+            document.getElementById('recordBtn').disabled = true;
+
+            try {
+                // Call Netlify Function (which uses Google Gemini API)
+                const response = await fetch('/.netlify/functions/analyze-gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                const data = await response.json();
+                const aiText = data.content[0].text;
+                
+                // Clean possible markdown code block markers
+                let cleanedText = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                
+                // Parse AI returned JSON
+                aiAnalysisResult = JSON.parse(cleanedText);
+                
+                // Display AI analysis result
+                displayAIAnalysis(aiAnalysisResult);
+                
+                // Hide loading, show submit button
+                document.getElementById('aiAnalyzing').classList.remove('show');
+                document.getElementById('submitBtn').classList.add('show');
+                document.getElementById('recordBtn').disabled = false;
+
+            } catch (error) {
+                console.error('AI analysis failed:', error);
+                
+                // If AI analysis fails, use simple local analysis
+                aiAnalysisResult = generateSimpleAnalysis(text);
+                displayAIAnalysis(aiAnalysisResult);
+                
+                document.getElementById('aiAnalyzing').classList.remove('show');
+                document.getElementById('submitBtn').classList.add('show');
+                document.getElementById('recordBtn').disabled = false;
+            }
+        }
+
+        function displayAIAnalysis(analysis) {
+            const preview = document.getElementById('aiPreview');
+            
+            // Display emotion type and keywords
+            let emotionHTML = `<span class="emotion-badge">${analysis.emotion_type}</span>`;
+            if (analysis.keywords && analysis.keywords.length > 0) {
+                analysis.keywords.forEach(keyword => {
+                    emotionHTML += `<span class="emotion-badge" style="background: rgba(255,255,255,0.1);">${keyword}</span>`;
+                });
+            }
+            document.getElementById('emotionType').innerHTML = emotionHTML;
+            
+            // Display intensity
+            document.getElementById('intensityFill').style.width = analysis.intensity + '%';
+            document.getElementById('intensityText').textContent = `${analysis.intensity}/100`;
+            
+            // Display analysis
+            document.getElementById('aiAnalysis').textContent = analysis.analysis;
+            
+            preview.classList.add('show');
+        }
+
+        function generateSimpleAnalysis(text) {
+            // Simple local emotion analysis (as backup)
+            const positiveWords = ['happy', 'joy', 'excited', 'great', 'wonderful', 'amazing', 'love'];
+            const negativeWords = ['sad', 'angry', 'upset', 'terrible', 'awful', 'hate', 'anxious'];
+            const calmWords = ['calm', 'peaceful', 'relaxed', 'comfortable', 'tranquil'];
+            
+            let emotionType = 'Calm';
+            let intensity = 50;
+            let color = '#6bcf7f';
+            let keywords = [];
+            
+            const lowerText = text.toLowerCase();
+            
+            if (positiveWords.some(word => lowerText.includes(word))) {
+                emotionType = 'Joy';
+                intensity = 75;
+                color = '#ffd93d';
+                keywords = ['Positive', 'Pleasant'];
+            } else if (negativeWords.some(word => lowerText.includes(word))) {
+                emotionType = 'Low';
+                intensity = 65;
+                color = '#ff6b6b';
+                keywords = ['Need Attention', 'Mood Swing'];
+            } else if (calmWords.some(word => lowerText.includes(word))) {
+                emotionType = 'Calm';
+                intensity = 40;
+                color = '#4d96ff';
+                keywords = ['Stable', 'Harmonious'];
+            }
+            
+            return {
+                emotion_type: emotionType,
+                intensity: intensity,
+                color: color,
+                keywords: keywords,
+                analysis: 'Based on your expression, this emotional state is detected'
+            };
+        }
+
+        function submitEmotion() {
+            if (!transcript || !aiAnalysisResult) {
+                alert('Please record first and wait for AI analysis to complete');
+                return;
+            }
+
+            // Get existing emotion data
+            let emotions = JSON.parse(localStorage.getItem('emotions') || '[]');
+            
+            // Create new emotion record (using AI analysis result)
+            const newEmotion = {
+                id: Date.now(),
+                text: transcript,
+                intensity: aiAnalysisResult.intensity,
+                color: aiAnalysisResult.color,
+                emotion_type: aiAnalysisResult.emotion_type,
+                keywords: aiAnalysisResult.keywords || [],
+                analysis: aiAnalysisResult.analysis,
+                time: new Date().toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                name: aiAnalysisResult.emotion_type + ' - ' + new Date().toLocaleDateString('en-US'),
+                resonance: Math.floor(Math.random() * 15) + 5
+            };
+            
+            emotions.push(newEmotion);
+            localStorage.setItem('emotions', JSON.stringify(emotions));
+            
+            // Jump to star map
+            alert('✨ Emotion recorded successfully! Viewing your emotion star map now');
+            window.location.href = 'starmap.html';
+        }
+    </script>
+</body>
+</html>
